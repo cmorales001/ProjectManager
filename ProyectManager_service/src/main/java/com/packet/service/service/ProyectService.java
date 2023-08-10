@@ -19,7 +19,7 @@ public interface ProyectService {
     public boolean updateProyect(Proyect proyect);
 
     public Proyect getProyectById(Long idProyect);
-    
+
     public Proyect getProyectByCodeInvitation(String code);
 
     public boolean deleteProyect(Long idProyect);
@@ -28,6 +28,8 @@ public interface ProyectService {
 
     public boolean addUser(Long idProyect, Long idUser);
 
+    public boolean addUser(String codeProyect, Long idUser);
+
     public List<Long> findUsersByProyect(Long idProyect);
 
     public boolean saveTask(Long idProyect, Task task);
@@ -35,6 +37,5 @@ public interface ProyectService {
     public boolean deleteTask(Long idProyect, Task task);
 
     public boolean updateTask(Long idProyect, Task task);
-    
 
 }
