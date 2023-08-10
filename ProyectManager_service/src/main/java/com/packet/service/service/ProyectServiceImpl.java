@@ -21,23 +21,23 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProyectServiceImpl implements ProyectService {
-    
+
     private final ProyectDao proyectDao;
-    
+
     @Autowired
     public ProyectServiceImpl(DaoImpl factory) {
         this.proyectDao = factory.createProyectDao();
     }
-    
+
     @Override
     public boolean saveProyect(Proyect proyect) {
-        
+
         try {
             // primero se comprueba que no exista un proyecto con el mismo nombre, del mismo user
             if (this.existsName(proyect)) {
                 // si existe instantaneamente no se registra e informa a la otra capa que no se ejecuto
                 return false;
-                
+
             }
 
             // creo un user para guardar en el proyecto(dbb mongo)
@@ -59,15 +59,15 @@ public class ProyectServiceImpl implements ProyectService {
             this.proyectDao.save(proyect);
             // si la operacion fue exitosa retorna un true
             return true;
-            
+
         } catch (Exception e) {
             return false;
         }
     }
-    
+
     @Override
     public boolean updateProyect(Proyect proyect) {
-        
+
         String proyectNameDb = this.getProyectById(proyect.get_id()).getName();
         try {
             if (!proyectNameDb.equals(proyect.getName())) {
@@ -77,34 +77,34 @@ public class ProyectServiceImpl implements ProyectService {
             }
             this.proyectDao.update(proyect);
             return true;
-            
+
         } catch (Exception e) {
             return false;
         }
-        
+
     }
-    
+
     @Override
     public Proyect getProyectById(Long idProyect) {
         try {
             return this.proyectDao.findById(idProyect);
-            
+
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-    
+
     @Override
     public Proyect getProyectByCodeInvitation(String code) {
         try {
-            return this.proyectDao.findByCodeInvitation(code); 
+            return this.proyectDao.findByCodeInvitation(code);
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-    
+
     @Override
     public boolean deleteProyect(Long idProyect) {
         try {
@@ -114,43 +114,62 @@ public class ProyectServiceImpl implements ProyectService {
             return false;
         }
     }
-    
+
     @Override
     public List<Proyect> getProyectsByUser(Long idUser) {
-        
+
         try {
             return this.proyectDao.findProyectsByUser(idUser);
-            
+
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-    
+
     @Override
     public boolean addUser(Long idProyect, Long idUser) {
-        
+
         try {
             Proyect proyect = this.getProyectById(idProyect);
-            List<ProyectUser> users = proyect.getUsers();
-            for (ProyectUser user : users) {
-                if (user.get_id().equals(idUser)) {
-                    return false;
-                }
-            }
-            ProyectUser proyectUser = new ProyectUser();
-            proyectUser.set_id(idUser);
-            proyectUser.setRole("USER");
-            users.add(proyectUser);
-            proyect.setUsers(users);
-            this.proyectDao.save(proyect);
-            return true;
-            
+
+            return this.addUserDb(proyect, idUser);
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    
+
+    @Override
+    public boolean addUser(String codeProyect, Long idUser) {
+
+        try {
+            Proyect proyect = this.getProyectByCodeInvitation(codeProyect);
+            return this.addUserDb(proyect, idUser);
+
         } catch (Exception e) {
             return false;
         }
     }
     
+    public boolean addUserDb(Proyect proyect, Long idUser) {
+        List<ProyectUser> users = proyect.getUsers();
+        for (ProyectUser user : users) {
+            if (user.get_id().equals(idUser)) {
+                return false;
+            }
+        }
+        ProyectUser proyectUser = new ProyectUser();
+        proyectUser.set_id(idUser);
+        proyectUser.setRole("USER");
+        users.add(proyectUser);
+        proyect.setUsers(users);
+        this.proyectDao.save(proyect);
+        return true;
+    }
+
     @Override
     public boolean saveTask(Long idProyect, Task task) {
         Proyect proyect = this.getProyectById(idProyect);
@@ -165,6 +184,8 @@ public class ProyectServiceImpl implements ProyectService {
         return true;
     }
     
+    
+
     @Override
     public boolean deleteTask(Long idProyect, Task task) {
         Proyect proyect = this.getProyectById(idProyect);
@@ -177,7 +198,7 @@ public class ProyectServiceImpl implements ProyectService {
         this.updateProyect(proyect);
         return true;
     }
-    
+
     @Override
     public boolean updateTask(Long idProyect, Task task) {
         Proyect proyect = this.getProyectById(idProyect);
@@ -186,7 +207,7 @@ public class ProyectServiceImpl implements ProyectService {
             tasks = new ArrayList<>();
         }
         int index = 10;
-        
+
         for (Task taskBd : tasks) {
             if (taskBd.get_id().equals(task.get_id())) {
                 index = tasks.indexOf(taskBd);
@@ -198,10 +219,10 @@ public class ProyectServiceImpl implements ProyectService {
         this.updateProyect(proyect);
         return true;
     }
-    
+
     @Override
     public List<Long> findUsersByProyect(Long idProyect) {
-        
+
         try {
             Proyect proyect = this.getProyectById(idProyect);
             List<Long> idsUsers = new ArrayList<>();
@@ -209,18 +230,18 @@ public class ProyectServiceImpl implements ProyectService {
                 idsUsers.add(user.get_id());
             }
             return idsUsers;
-            
+
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-    
+
     private boolean existsName(Proyect proyect) {
-        
+
         try {
             Long idOwner = proyect.getIdOwner();
-            
+
             List<Proyect> proyects = this.getProyectsByUser(idOwner);
             String proyectName = proyect.getName();
             for (Proyect proyectsName : proyects) {
@@ -232,12 +253,12 @@ public class ProyectServiceImpl implements ProyectService {
         } catch (Exception e) {
             return false;
         }
-        
+
     }
-    
+
     private String generateCodeInvitation() {
         Random rdn = new Random();
-        
+
         String caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         char letra;
         String code = "";
@@ -251,7 +272,7 @@ public class ProyectServiceImpl implements ProyectService {
         // se retorna el código de invitación generado
         return code;
     }
-    
+
     private Long lastId(List<Task> tasks) {
         Long id = 0L;
         for (Task task : tasks) {
@@ -261,5 +282,5 @@ public class ProyectServiceImpl implements ProyectService {
         }
         return id + 1;
     }
-    
+
 }
