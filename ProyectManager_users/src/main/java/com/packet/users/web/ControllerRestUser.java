@@ -35,6 +35,14 @@ public class ControllerRestUser {
         }
     }
 
+    /**
+     * metodo get para obtenerun usuario por su email o nickname
+     * @param email email del usuario
+     * @param nick nick del usuario
+     * @return objeto de tipo ResponseEntity para comunicar a cliente el estado de la peticion:
+     *         Status 200 (bien ) acompañado de un registro de usuario , o  
+     *         Status 500(ocurrio un problema en el servidor)
+     */
     @GetMapping("/user/{email}/{nick}")
     public ResponseEntity<User> getUsersByEmailOrNick(@PathVariable("email") String email, @PathVariable("email") String nick) {
         
@@ -47,10 +55,16 @@ public class ControllerRestUser {
         }
     }
 
+    /**
+     * metodo post que almacena un registro de proyecto
+     * @param user User a ser guardado en la BDD
+     * @returnun objeto de tipo ResponseEntity para comunicar a cliente el estado de la peticion:
+     *         Status 200 (se registro correctamente ) o Status 500(ocurrio un problema en el servidor y no se registró el cambio)
+     */
     @PostMapping("/user")
-    public ResponseEntity<Void> newUser(@RequestBody User cliente) {
+    public ResponseEntity<Void> saveUser(@RequestBody User user) {
         try {
-            userService.saveUser(cliente);
+            userService.saveUser(user);
             return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
         } catch (Exception e) {
 
@@ -58,6 +72,13 @@ public class ControllerRestUser {
         }
     }
 
+    
+    /**
+     * metodo put que actualizar un registro de proyecto
+     * @param user User a ser actualizado en la BDD
+     * @returnun objeto de tipo ResponseEntity para comunicar al cliente el estado de la peticion:
+     *         Status 200 (se registro correctamente ) o Status 500(ocurrio un problema en el servidor y no se registró el cambio)
+     */
     @PutMapping("/user")
     public ResponseEntity<Void> updateUser(@RequestBody User user) {
         try {

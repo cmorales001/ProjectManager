@@ -20,40 +20,49 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * clase Proyect Dao encargada de conectarse a la api rest ful de la bdd Mongo
- * en caso de que la dbb se caiga o la api falle, el problema no afecta a la capa de servicio(API service) y funciona sin problemas
-   ventajas : bajo acoplamiento, se puede cambiar de bdd sin muchos esfuerzo(operaciones crud)
+ * en caso de que la dbb se caiga o la api falle, el problema no afecta a la
+ * capa de servicio(API service) y funciona sin problemas ventajas : bajo
+ * acoplamiento, se puede cambiar de bdd sin muchos esfuerzo(operaciones crud)
  */
 @Repository
-public class ProyectDaoImpl  implements ProyectDao{
-    
+public class ProyectDaoImpl implements ProyectDao {
+
     // url para realizar peticiones a la dbb mysql 
     private final String apiUrlBase = "http://localhost:8082/api/v1/proyect";
 
+    // objeto web RESTful para interactuar con la API REST CRUD
     @Autowired
     private RestTemplate restTemplate;
 
-    //metodo DAO para obtener un proyecto por su id desde la bdd
+    /**
+     * metodo DAO para obtener un proyecto por su id desde la bdd
+     *
+     * @param id ID del proyecto a buscar
+     * @return Objeto DTO Proyect
+     */
     @Override
     public Proyect findById(Long id) {
-
+        // se ajusta la url base para realizar la solicitud
         String apiUrl = apiUrlBase + "/" + id; // URL de la API RESTful 
 
         try {
-            // Hacer una solicitud GET y obtener la respuesta en un objeto proyect
+            // Hacer una solicitud GET y obtener la respuesta para retornar el cuerpo de la peticion
             ResponseEntity<Proyect> response = restTemplate.getForEntity(apiUrl, Proyect.class);
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return response.getBody();
-            } else {
-                return null;
-            }
+            return response.getBody();
 
         } catch (Exception e) {
+            // si se presenta algún error transmite el error a la siguiente capa
             throw e;
         }
     }
 
-    //metodo DAO para obtener los proyectos pertenecientes a un user por su id desde la bdd
+    /**
+     * metodo DAO para obtener los proyectos pertenecientes a un user por su id
+     * desde la bdd
+     *
+     * @param idUser ID del usuario del que se quiere obtener sus proyectos
+     * @return lista de proyectos en el que un user es participante
+     */
     @Override
     public List<Proyect> findProyectsByUser(Long idUser) {
 
@@ -68,19 +77,18 @@ public class ProyectDaoImpl  implements ProyectDao{
                     new ParameterizedTypeReference<List<Proyect>>() {
             }
             );
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return response.getBody();
-            } else {
-                return null;
-            }
-
+            return response.getBody();
         } catch (Exception e) {
             throw e;
         }
     }
-    
-    //metodo DAO para obtener un proyecto por su codeInvitation desde la bdd
+
+    /**
+     * metodo DAO para obtener un proyecto por su codeInvitation desde la bdd
+     *
+     * @param code codigo de proyecto a buscar
+     * @return Objeto DTO proyect
+     */
     @Override
     public Proyect findByCodeInvitation(String code) {
 
@@ -90,18 +98,18 @@ public class ProyectDaoImpl  implements ProyectDao{
             // Hacer una solicitud GET y obtener la respuesta en un objeto proyect
             ResponseEntity<Proyect> response = restTemplate.getForEntity(apiUrl, Proyect.class);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return response.getBody();
-            } else {
-                return null;
-            }
+            return response.getBody();
 
         } catch (Exception e) {
             throw e;
         }
     }
 
-    //metodo DAO para guardar un registro de usuario a la bdd
+    /**
+     * metodo DAO para guardar un registro de usuario en la BDD
+     * @param proyect objeto DTO Proyect a ser registrado
+     * @return retorna un boolean para confirmar si se realizo algun cambio en la dbb
+     */
     @Override
     public boolean save(Proyect proyect) {
         String apiUrl = apiUrlBase;
@@ -112,17 +120,8 @@ public class ProyectDaoImpl  implements ProyectDao{
 
         try {
             ResponseEntity<Void> response = restTemplate.postForEntity(apiUrl, request, Void.class);
-            // Comprobar el código de estado de la respuesta para determinar si se eliminó correctamente
-            if (response.getStatusCode().is2xxSuccessful()) {
-                // La operación de eliminación fue exitosa
-                return true;
-            } else {
-                // Manejar el código de estado inesperado aquí si es necesario
-                return false;
-            }
-        } catch (HttpServerErrorException.InternalServerError e) {
-            // En caso de error 500 en la API, lanza una excepción personalizada o registra el error
-            throw new RuntimeException("Error al guardar el Proyect en la API  en la capa dao", e);
+            // Comprobar el código de estado de la respuesta para determinar si se registró correctamente
+            return response.getStatusCode() == HttpStatus.OK;
         } catch (Exception e) {
             // Captura cualquier otra excepción y regístrala o maneja adecuadamente según tus necesidades
             throw new RuntimeException("Error desconocido al guardar el Proyect", e);
@@ -130,7 +129,11 @@ public class ProyectDaoImpl  implements ProyectDao{
 
     }
 
-    //metodo DAO para actualizar un proyecto en la bdd
+    /**
+     * metodo DAO para actualizar un proyecto en la bdd
+     * @param proyect objeto DTO Proyect a ser actualizado
+     * @return retorna un boolean para confirmar si se realizo algun cambio en la dbb
+     */
     @Override
     public boolean update(Proyect proyect) {
         String apiUrl = apiUrlBase;
@@ -153,7 +156,12 @@ public class ProyectDaoImpl  implements ProyectDao{
         }
     }
 
-    //metodo DAO para elimincar un proyecto de la bdd
+    
+    /**
+     * metodo DAO para eliminar un proyecto en la bdd
+     * @param idProyect ID del proyecto a ser eliminado
+     * @return retorna un boolean para confirmar si se realizo algun cambio en la dbb
+     */
     @Override
     public boolean deleteById(Long idProyect) {
         String apiUrl = apiUrlBase + "/" + idProyect;
@@ -163,18 +171,12 @@ public class ProyectDaoImpl  implements ProyectDao{
             ResponseEntity<Void> response = restTemplate.exchange(apiUrl, HttpMethod.DELETE, null, Void.class);
 
             // Comprobar el código de estado de la respuesta para determinar si se eliminó correctamente
-            if (response.getStatusCode().is2xxSuccessful()) {
-                // La operación de eliminación fue exitosa
-                return true;
-            } else {
-                // Manejar el código de estado inesperado aquí si es necesario
-                return false;
-            }
+            return response.getStatusCode() == HttpStatus.OK;
 
         } catch (HttpServerErrorException.InternalServerError e) {
             // En caso de error 500 en la API, lanza una excepción personalizada o registra el error
-            throw new RuntimeException("Error al guardar el Proyect en la API", e);
-        
+            throw new RuntimeException("Error al eliminar el Proyect en la API", e);
+
         } catch (Exception e) {
 
             throw e;

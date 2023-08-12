@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 /**
  *
- * @author KrauserPC
+ * 
  */
 @Service
 public class ProyectServiceImpl implements ProyectService {
@@ -140,8 +140,6 @@ public class ProyectServiceImpl implements ProyectService {
         }
     }
 
-    
-
     @Override
     public boolean addUser(String codeProyect, Long idUser) {
 
@@ -151,9 +149,9 @@ public class ProyectServiceImpl implements ProyectService {
 
         } catch (Exception e) {
             return false;
-        }
+        } 
     }
-    
+
     public boolean addUserDb(Proyect proyect, Long idUser) {
         List<ProyectUser> users = proyect.getUsers();
         for (ProyectUser user : users) {
@@ -166,7 +164,7 @@ public class ProyectServiceImpl implements ProyectService {
         proyectUser.setRole("USER");
         users.add(proyectUser);
         proyect.setUsers(users);
-        this.proyectDao.save(proyect);
+        this.proyectDao.update(proyect);
         return true;
     }
 
@@ -183,8 +181,6 @@ public class ProyectServiceImpl implements ProyectService {
         this.updateProyect(proyect);
         return true;
     }
-    
-    
 
     @Override
     public boolean deleteTask(Long idProyect, Task task) {

@@ -21,18 +21,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/api/v2")
 public class ControllerRestProyect {
 
     @Autowired
     private ProyectService proyectService;
-    
+
     /**
      * PETICIONES PARA OBTENER PROYECTOS
      */
-
     //peticion para obtener los proyectos de un user en especial
     @GetMapping("/proyects/{id}")
     public List<Proyect> proyectsByUser(@PathVariable("id") Long idUser) {
@@ -45,11 +43,17 @@ public class ControllerRestProyect {
         return this.proyectService.getProyectById(idProyect);
     }
 
-    
+    @GetMapping("/proyectcode/{code}")
+    public ResponseEntity<Proyect> getByCode(@PathVariable("code") String codeProyect) {
+
+        Proyect proyect = this.proyectService.getProyectByCodeInvitation(codeProyect);
+        return ResponseEntity.ok(proyect);
+
+    }
+
     /**
      * PETICIONES PARA GUARDAR PROYECTOS
      */
-
     //peticion post para guardar un proyecto 
     @PostMapping("/proyect")
     public ResponseEntity<Void> saveProyect(@RequestBody Proyect proyect) {
@@ -65,11 +69,10 @@ public class ControllerRestProyect {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    
+
     /**
      * PETICIONES PARA EDITAR REGISTROS DE PROYECTOS
      */
-
     //peticion put para actualizar un proyecto
     @PutMapping("/proyect")
     public ResponseEntity<Void> updateProyect(@RequestBody Proyect proyect) {
@@ -86,7 +89,7 @@ public class ControllerRestProyect {
         }
 
     }
-    
+
 //    // peticion put para añadir un nuevo usuario a un proyecto existente
 //    @PutMapping("/proyect/{idProyect}/{idUser}")
 //    public ResponseEntity<Void> addUserToProyect(@PathVariable("idProyect") Long idProyect, @PathVariable("idUser") Long idUser) {
@@ -102,8 +105,6 @@ public class ControllerRestProyect {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //        }
 //    }
-    
-    
     // peticion put para añadir un nuevo usuario a un proyecto existente
     @PutMapping("/proyect/{codeProyect}/{idUser}")
     public ResponseEntity<Void> addUserToProyectByCode(@PathVariable("codeProyect") String codeProyect, @PathVariable("idUser") Long idUser) {
@@ -118,14 +119,12 @@ public class ControllerRestProyect {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+
     }
-    
-    
-    
+
     /**
      * PETICIONES PARA ELIMINAR REGISTROS DE PROYECTOS
      */
-
     // peticion delete para eliminar un proyecto
     @DeleteMapping("/proyect/{id}")
     public ResponseEntity<Void> deleteProyect(@PathVariable("id") Long idProyect) {
@@ -142,12 +141,9 @@ public class ControllerRestProyect {
         }
     }
 
-    
-
     /**
      * PETICIONES PARA TAREAS
      */
-    
     //peticion post para guardar una tarea en un proyecto 
     @PostMapping("/task/{idProyect}")
     public ResponseEntity<Void> saveTask(@RequestBody Task task, @PathVariable("idProyect") Long idProyect) {

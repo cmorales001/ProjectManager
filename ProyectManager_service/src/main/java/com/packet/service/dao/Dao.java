@@ -6,7 +6,7 @@ package com.packet.service.dao;
 
 /**
  *
- * @author KrauserPC
+ * 
  */
 // INTERFACE Dao es la factory(fabrica)de los objetos dao
 

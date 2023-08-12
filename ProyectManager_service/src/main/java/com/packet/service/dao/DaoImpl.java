@@ -6,12 +6,11 @@ package com.packet.service.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 /**
  *
- * @author KrauserPC
+ * Clase DAO Factory
+ * parte del patron abstract factory para generar objetos de tipo DAO
  */
 @Component
 public class DaoImpl implements Dao{

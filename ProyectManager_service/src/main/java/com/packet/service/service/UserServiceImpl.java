@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * 
+ * Capa Service la cual contiene la lógica de negocio del sistema
+ * Se comunica con la capa DAO
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -27,19 +32,25 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // metodo saveUser responsable de verificar si un usuario puede ser registrado en la bdd
+    /**
+     * responsable de registrar un usuario en la bdd despues de validar restricciones 
+     * @param cliente Objeto DTO User
+     * @return boolean para confirmar si fue almacenado
+     */
     @Override
     public boolean saveUser(User cliente) {
-        // bloque try-catch para controlar errores
+
         try {
             // se verifica si el usuario ya existe por medio del metodo existsUser
-            // si ya existe se retorna como falso y no es alamacenado en la bdd
+            // si ya existe se retorna como falso y no es almacenado en la bdd
             if (this.existsUser(cliente)) {
                 return false;
             }
+            
             // si no existe, se encripta su contraseña con el objeto PasswordEncoder de spring
             cliente.setPassword(this.encryptedPassword(cliente.getPassword()));
-            // finalmente de guarda el registro y se retorna true
+            
+            // finalmente se envía a la capa DAO y se retorna true
             userDao.save(cliente);
             return true;
         } catch (Exception e) {
