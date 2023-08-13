@@ -15,9 +15,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class DaoImpl implements Dao{
 
+    //Inicializa un Objeto ProyectDao con Spring
     @Autowired
     ProyectDaoImpl proyectDao;
     
+    //Inicializa un Objeto UserDao con Spring
     @Autowired
     UserDaoImpl userDao;
     
@@ -25,7 +27,6 @@ public class DaoImpl implements Dao{
     @Override
     public ProyectDaoImpl createProyectDao() {
         return proyectDao;
-
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.packet.users.service.UserService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,11 +49,11 @@ public class ControllerRestUser {
         
         try {
             User user;
-            user = userService.getUserByEmailOrNickName(email, nick);
+             user = userService.getUserByEmailOrNickName(email, nick);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Error interno del servidor) sin contenido en el cuerpo de la respuesta.
-        }
+        }   
     }
 
     /**

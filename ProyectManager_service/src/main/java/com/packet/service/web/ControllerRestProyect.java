@@ -31,13 +31,23 @@ public class ControllerRestProyect {
     /**
      * PETICIONES PARA OBTENER PROYECTOS
      */
-    //peticion para obtener los proyectos de un user en especial
+    /**
+     * método get para obtener los proyectos de un user en especial
+     *
+     * @param idUser ID del usuario a obtener sus proyectos
+     * @return lista de proyectos en el que esta presente el usuario
+     */
     @GetMapping("/proyects/{id}")
     public List<Proyect> proyectsByUser(@PathVariable("id") Long idUser) {
         return this.proyectService.getProyectsByUser(idUser);
     }
 
-    //peticion get para obtener un proyecto por su id
+    /**
+     * método get para obtener un proyecto por su id
+     *
+     * @param idProyect ID del proyecto a buscar
+     * @return ObjetoDTO proyect
+     */
     @GetMapping("/proyect/{id}")
     public Proyect proyectsById(@PathVariable("id") Long idProyect) {
         return this.proyectService.getProyectById(idProyect);
@@ -54,38 +64,56 @@ public class ControllerRestProyect {
     /**
      * PETICIONES PARA GUARDAR PROYECTOS
      */
-    //peticion post para guardar un proyecto 
+    /**
+     * método post para guardar un nuevo registro de proyecto
+     *
+     * @param proyect ObjetoDTO proyect a ser registrado
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PostMapping("/proyect")
     public ResponseEntity<Void> saveProyect(@RequestBody Proyect proyect) {
 
         try {
             boolean isSaved = this.proyectService.saveProyect(proyect);
             if (isSaved) {
-                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
+                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) .
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request).
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error).
         }
     }
 
     /**
      * PETICIONES PARA EDITAR REGISTROS DE PROYECTOS
      */
-    //peticion put para actualizar un proyecto
+    /**
+     * método put para actualizar un proyecto
+     *
+     * @param proyect ObjetoDTO proyect a ser actualizado
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PutMapping("/proyect")
     public ResponseEntity<Void> updateProyect(@RequestBody Proyect proyect) {
 
         try {
             boolean isSaved = this.proyectService.updateProyect(proyect);
             if (isSaved) {
-                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
+                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) .
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request).
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Devuelve un código de estado 500 (Server Error).
         }
 
     }
@@ -105,19 +133,31 @@ public class ControllerRestProyect {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //        }
 //    }
-    // peticion put para añadir un nuevo usuario a un proyecto existente
+    
+    /**
+     * peticion put para añadir un nuevo usuario a un proyecto existente por
+     * medio del codigo de invitacion de un Proyecto
+     *
+     * @param codeProyect codigo del proyecto a unirse
+     * @param idUser ID del usuario a unirse
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PutMapping("/proyect/{codeProyect}/{idUser}")
     public ResponseEntity<Void> addUserToProyectByCode(@PathVariable("codeProyect") String codeProyect, @PathVariable("idUser") Long idUser) {
 
         try {
             boolean isSaved = this.proyectService.addUser(codeProyect, idUser);
             if (isSaved) {
-                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
+                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK).
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Devuelve un código de estado 500 (Server Error)
         }
 
     }
@@ -125,7 +165,16 @@ public class ControllerRestProyect {
     /**
      * PETICIONES PARA ELIMINAR REGISTROS DE PROYECTOS
      */
-    // peticion delete para eliminar un proyecto
+    /**
+     * método delete para eliminar un proyecto
+     *
+     * @param idProyect ID del proyecto a Eliminar
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @DeleteMapping("/proyect/{id}")
     public ResponseEntity<Void> deleteProyect(@PathVariable("id") Long idProyect) {
 
@@ -134,17 +183,27 @@ public class ControllerRestProyect {
             if (isSaved) {
                 return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error)
         }
     }
 
     /**
      * PETICIONES PARA TAREAS
      */
-    //peticion post para guardar una tarea en un proyecto 
+    /**
+     * peticion post para guardar una tarea en un proyecto
+     *
+     * @param task Objeto DTO Task
+     * @param idProyect ID del proyecto al que pertenece
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PostMapping("/task/{idProyect}")
     public ResponseEntity<Void> saveTask(@RequestBody Task task, @PathVariable("idProyect") Long idProyect) {
 
@@ -153,14 +212,24 @@ public class ControllerRestProyect {
             if (isSaved) {
                 return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error)
         }
     }
 
-    //peticion put para actualizar un proyecto
+    /**
+     * peticion post para actualizar una tarea en un proyecto
+     *
+     * @param task Objeto DTO Task
+     * @param idProyect ID del proyecto al que pertenece
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PutMapping("/task/{idProyect}")
     public ResponseEntity<Void> updateTask(@RequestBody Task task, @PathVariable("idProyect") Long idProyect) {
 
@@ -169,15 +238,25 @@ public class ControllerRestProyect {
             if (isSaved) {
                 return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error)
         }
 
     }
 
-    // peticion delete para eliminar un proyecto
+    /**
+     * peticion delete para eliminar una tarea en un proyecto
+     *
+     * @param task Objeto DTO Task
+     * @param idProyect ID del proyecto al que pertenece
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @DeleteMapping("/task/{idProyect}")
     public ResponseEntity<Void> deleteTask(@RequestBody Task task, @PathVariable("idProyect") Long idProyect) {
 
@@ -186,10 +265,10 @@ public class ControllerRestProyect {
             if (isSaved) {
                 return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error)
         }
     }
 

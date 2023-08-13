@@ -18,5 +18,6 @@ public interface UserService {
     public User getUserById(Long idUser);
     
     public User getUserByEmailOrNickName(String email, String nickName);
+
     
 }

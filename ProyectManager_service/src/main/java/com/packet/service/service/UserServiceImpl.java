@@ -22,13 +22,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Service
 public class UserServiceImpl implements UserService {
 
+    // conexion a la CapaDao
     private final UserDao userDao;
 
     @Autowired
     public UserServiceImpl(DaoImpl factory) {
+        //metodo contructor que inicializa un objeto UserDao con su factory
         this.userDao = factory.createUserDao();
     }
 
+    // objeto de seguridad de Spring
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -60,7 +63,12 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    // metodo updateUser encargado de realizar validaciones antes de actualizar un registro
+
+    /**
+     * metodo updateUser encargado de realizar validaciones antes de actualizar un registro
+     * @param user Objeto DTO user a ser actualizado
+     * @return boolean para confirmar si fue registrado
+     */
     @Override
     public boolean updateUser(User user) {
         // bloque try-catch para controlar errores
@@ -72,7 +80,8 @@ public class UserServiceImpl implements UserService {
 
             //contraseña obtenida de la dbb(encriptada)
             String encodedPassword = userDb.getPassword();
-
+            
+            // se actualiza los cambios
             if (!(user.getEmail().equals(userDb.getEmail())) && !user.getEmail().isEmpty()) {
                 userDb.setEmail(user.getEmail());
             }
@@ -97,7 +106,12 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
+    
+    /**
+     * método get para obtener un usario por su ID
+     * @param idUser ID del usuario
+     * @return Objeto DTO User o Null en caso de error
+     */
     @Override
     public User getUserById(Long idUser) {
         try {
@@ -107,7 +121,13 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
+    
+    
+    /**
+     * metodo para obtener los usuarios pertenecientes a un proyecto buscados por ID
+     * @param idUsers Lista de Longs con los usuario pertenecientes a un proyecto
+     * @return Lista de usuario 
+     */
     @Override
     public List<User> getUserByProyect(List<Long> idUsers) {
         List<User> usersByProyect = new ArrayList<>();
@@ -122,36 +142,50 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
+    
+    /**
+     * metodo responsable de comprobar las credenciales de un usuario para inicio de sesion
+     * @param user Objeto DTO UserCredentialsDTO
+     * @return Objeto DTO User en caso de ser correctas las credenciales, y en caso de ser incorrectas NULL
+     */
     @Override
     public User LoginUser(UserCredentialsDTO user) {
 
         try {
-
+            
+            // bsuscamos el usuario en la capa Dao por el parametro Email o Nick, el que haya enviado
             User userLogin = userDao.findUserByEmailOrNick(user.getEmailOrNickname(), user.getEmailOrNickname());
 
+            // si no existen registros retorna null 
             if (userLogin == null) {
                 return userLogin;
             }
-
+            
+            // si encuentra algún registro procede a la verificación de la contraseña
+            
             //contraseña obtenida del inicio de sesion(sin encriptar)
             String rawPassword = user.getPassword();
 
             //contraseña obtenida de la dbb(encriptada)
             String encodedPassword = userLogin.getPassword();
-
+            
+            // usa el método local authenticate para para verificar con ayuda de los objetos de Spring
             if (this.authenticate(rawPassword, encodedPassword)) {
                 return userLogin;
             } else {
                 return null;
             }
-
         } catch (Exception e) {
             return null;
         }
 
     }
 
+    /**
+     * Recuperar un usuario por su Email o Nickname desde la BDD
+     * @param emailOrNick Nick o Email del usuario a buscar
+     * @return Objeto DTO User en caso de existir, null en caso de error  o no existir
+     */
     @Override
     public User getUserByEmailOrNick(String emailOrNick) {
         try {
@@ -161,7 +195,12 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
+        
+    /**
+     * Comprueba la existencia de un usuario
+     * @param user Objeto DTO User
+     * @return boolean, (True) si existe, (False si no existe)
+     */
     private boolean existsUser(User user) {
         try {
             User userBd = this.userDao.findUserByEmailOrNick(user.getEmail(), user.getNickName());
@@ -172,6 +211,11 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    /**
+     * Encripta la contraseña con ayuda del objeto passwordEncoder de Spring
+     * @param password contreña a encriptar
+     * @return contraseña encriptada
+     */
     private String encryptedPassword(String password) {
 
         String encryptedPassword = passwordEncoder.encode(password);
@@ -179,6 +223,14 @@ public class UserServiceImpl implements UserService {
         return encryptedPassword;
     }
 
+    /**
+     * Comprueba que la contraseña enviada desde el front sea igual a la registrada en la bdd 
+     * con ayuda del método matches del Objeto passwordEncoder de Spring
+     * (solo es posible verificar de esta manera)
+     * @param rawPassword contraseña sin encriptar
+     * @param encodedPassword contraseña encriptada recuperada de la BDD
+     * @return boolean, (True) si son iguales, (False) si son diferentes
+     */
     public boolean authenticate(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }

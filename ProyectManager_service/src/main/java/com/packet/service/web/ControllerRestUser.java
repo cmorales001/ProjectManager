@@ -32,7 +32,12 @@ public class ControllerRestUser {
     @Autowired
     private ProyectService proyectService;
 
-    // peticion get para obtener los usuarios de un proyecto
+    /**
+     * peticion get para obtener los usuarios pertenecientes a un proyecto
+     *
+     * @param idProyect ID del proyecto
+     * @return lista de usuarios
+     */
     @GetMapping("/users/{idProyect}")
     public List<User> getUsersByProyect(@PathVariable("idProyect") Long idProyect) {
         List<Long> idsUsers;
@@ -41,44 +46,74 @@ public class ControllerRestUser {
         return usersByProyect;
     }
 
-    //peticion get para obtener un user por su id
+    /**
+     * peticion get para obtener un usuario por su id
+     *
+     * @param id ID del Usuario a buscar
+     * @return Objeto DTO User
+     */
     @GetMapping("/user/{id}")
     public User getUsersByID(@PathVariable("id") Long id) {
         return userService.getUserById(id);
     }
 
-    //peticion get para obtener un user por su email o nickname
+    /**
+     * peticion get para obtener un user por su email o nickname
+     *
+     * @param emailOrNick nickName o Email por el que se buscará un usuario
+     * @return Objeto DTO User
+     */
     @GetMapping("/usermail/{emailOrNick}")
     public User getUsersByEmailOrNick(@PathVariable("emailOrNick") String emailOrNick) {
         return userService.getUserByEmailOrNick(emailOrNick);
     }
 
-    // peticion post para guardar un nuevo user
+    /**
+     * peticion post para guardar un nuevo user
+     *
+     * @param user Objeto DTO User a ser registrado
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PostMapping("/user")
-    public ResponseEntity<Void> saveUser(@RequestBody User cliente) {
+    public ResponseEntity<Void> saveUser(@RequestBody User user) {
 
         try {
-            boolean isSaved = userService.saveUser(cliente);
+            boolean isSaved = userService.saveUser(user);
             if (isSaved) {
-                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
+                return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK).
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build(); // Devuelve un código de estado 400 (Bad Request).
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error).
         }
     }
 
-    //peticion post comprobar las credenciales de un usuario(inicio de sesion)
-    // utiliza el objeto UserCredentialsDTO
+    /**
+     * peticion post comprobar las credenciales de un usuario(inicio de sesion)
+     *
+     * @param user Objeto UserCredentialsDTO para recibir las credenciales del
+     * usuario a través del cuerpo de la peticion (Seguridad)
+     * @return ObjetoDTO User
+     */
     @PostMapping("/userAccess")
     public User LogginUser(@RequestBody UserCredentialsDTO user) {
-
         return userService.LoginUser(user);
-
     }
 
-    //metodo post para actualizar el registro de un usuario
+    /**
+     * metodo post para actualizar el registro de un usuario
+     * @param user ObjetoDTO User
+     * @return objeto de tipo ResponseEntity para comunicar al cliente el estado
+     * de la peticion: Status 200 (se registro correctamente ) o Status
+     * 500(ocurrio un problema en el servidor y no se registró el cambio) o
+     * Status 400 (el parámetro no paso una validación y no se registró el
+     * cambio)
+     */
     @PutMapping("/user")
     public ResponseEntity<Void> updateUser(@RequestBody User user) {
 
@@ -87,11 +122,12 @@ public class ControllerRestUser {
             if (isSaved) {
                 return ResponseEntity.ok().build(); // Devuelve un código de estado 200 (OK) sin contenido en el cuerpo de la respuesta.
             } else {
-                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();
+                return ResponseEntity.status((HttpStatus.BAD_REQUEST)).build();// Devuelve un código de estado 400 (Bad Request).
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();// Devuelve un código de estado 500 (Server Error).
         }
+        
     }
 
 }

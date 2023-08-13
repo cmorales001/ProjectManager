@@ -21,15 +21,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Configura un bean para proporcionar un codificador de contraseñas BCrypt.
+     * @return Un nuevo objeto BCryptPasswordEncoder para codificar y verificar contraseñas.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
+    /**
+     * Configura la seguridad HTTP para permitir todas las solicitudes.
+     * @param http El objeto HttpSecurity utilizado para configurar la seguridad.
+     * @throws Exception Si ocurre un error al configurar la seguridad.
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
             .authorizeRequests()
-            .anyRequest().permitAll();
+                .anyRequest().permitAll();
     }
 }

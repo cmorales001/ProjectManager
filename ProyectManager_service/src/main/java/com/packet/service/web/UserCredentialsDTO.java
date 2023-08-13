@@ -8,11 +8,9 @@ import lombok.Data;
 
 /**
  *
- * @author KrauserPC
+ * clase para recibir las credenciales de usuario desde la web con un metodo post
  */
 
-
-//clase para recibir las credenciales de usuario desde la web con un metodo post
 @Data
 public class UserCredentialsDTO {
     private String emailOrNickname;
