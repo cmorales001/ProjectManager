@@ -25,4 +25,6 @@ public interface ProyectService {
 
     public Proyect findByCode(String codeProyect);
 
+    public List<Proyect> findProyectsByOwner(Long idOwner);
+
 }

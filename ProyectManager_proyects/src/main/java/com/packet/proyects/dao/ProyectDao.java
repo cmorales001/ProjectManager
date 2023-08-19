@@ -20,7 +20,7 @@ import org.springframework.stereotype.Repository;
 public interface ProyectDao extends MongoRepository<Proyect, Long> {
 
     /**
-     * consulta persnalizada que busca proyectos por el ID de usuario.
+     * consulta personalizada que busca proyectos por el ID de usuario.
      *
      * @param idUser El ID del usuario.
      * @return Una lista de proyectos relacionados con el usuario.
@@ -29,11 +29,19 @@ public interface ProyectDao extends MongoRepository<Proyect, Long> {
     public List<Proyect> findProyectsByUser(@Param("idUser") Long idUser);
     
     /**
-     * consulta persnalizada que busca proyectos por su codigo de Invitacion
+     * consulta personalizada que busca proyectos por su codigo de Invitacion
      * @param codeInvitation Codigo de invitacion de un proyecto
      * @return Un proyecto relacionado a un codigo de invitacion en específico
      */
     @Query("{'codeInvitation': ?0}")
     Proyect findProyectsByCodeInvitation(String codeInvitation);
+    
+    /**
+     * consulta personalizada que busca proyectos por su idOwner(dueño de  proyecto)
+     * @param idOwner El ID del usuario dueño de un proyecto.
+     * @return  Una lista de proyectos relacionados con el usuario dueño.
+     */
+    @Query("{'idOwner': ?0}")
+    List<Proyect> findProyectsByIdOwner(Long idOwner);
 
 }

@@ -31,76 +31,51 @@ public class ProyectServiceImpl implements ProyectService {
     }
 
     /**
-     * Guarda un proyecto en la BDD luego de revisar las validaciones necesarias
+     * Actualiza un proyecto conectandose a la capa DAO
      *
-     * @param proyect Objeto DTO proyect a ser resgistrado
+     * @param proyect objeto DTO proyect
      * @return boolean (True)si se guardo correctamente, (False) si no se guardo
-     * p
      */
-    @Override
-    public boolean saveProyect(Proyect proyect) {
-
+    private boolean save(Proyect proyect) {
         try {
-            // primero se comprueba que no exista un proyecto con el mismo nombre, del mismo user
-            if (this.existsName(proyect)) {
-                // si existe instantaneamente no se registra e informa a la otra capa que no se ejecuto
-                return false;
-
-            }
-
-            // creo un user para guardar en el proyecto(dbb mongo)
-            ProyectUser proyectUser = new ProyectUser();
-
-            // se le asigna su rol de admin
-            proyectUser.set_id(proyect.getIdOwner());
-            proyectUser.setRole("ADMIN");
-
-            // se crea la lista de usuarios(de inicio vacia)
-            List<ProyectUser> users = new ArrayList<>();
-            // y se agrega al usuario a lista de users
-            users.add(proyectUser);
-            proyect.setUsers(users);
-
-            // se le asigna un codigo de invitacion 
-            proyect.setCodeInvitation(this.generateCodeInvitation());
-            // y finalmente se envia a la capa Dao para almacenar
             this.proyectDao.save(proyect);
-            // si la operacion fue exitosa retorna un true
             return true;
+        } catch (Exception e) {
+            return false;
+        }
 
+    }
+
+    /**
+     * Actualiza un proyecto conectandose a la capa DAO
+     *
+     * @param proyect
+     * @return boolean (True)si se guardo correctamente, (False) si no se guardo
+     */
+    private boolean update(Proyect proyect) {
+        try {
+            this.proyectDao.update(proyect);
+            return true;
         } catch (Exception e) {
             return false;
         }
     }
 
     /**
-     * actualiza un proyecto en la BDD luego de revisar las validaciones
-     * necesarias
+     * Elimina un proyecto por su ID
      *
-     * @param proyect Objeto DTO proyect a ser actualizado
-     * @return boolean (True)si se actualizó correctamente, (False) si no se
-     * actualizó
+     * @param idProyect ID del proyecto a eliminar
+     * @return boolean (True)si se eliminó correctamente, (False) si no se
+     * realizó
      */
     @Override
-    public boolean updateProyect(Proyect proyect) {
-
-        // se obtiene el proyecto original de la bdd(su nombre registrado)
-        String proyectNameDb = this.getProyectById(proyect.get_id()).getName();
+    public boolean deleteProyect(Long idProyect) {
         try {
-            // se comprueba que el nombre sea diferente para revisar que no exista otro proyecto con el mismo nombre
-            if (!proyectNameDb.equals(proyect.getName())) {
-                if (this.existsName(proyect)) {
-                    return false;
-                }
-            }
-            // se registran los cambios y se retorna true
-            this.proyectDao.update(proyect);
+            this.proyectDao.deleteById(idProyect);
             return true;
-
         } catch (Exception e) {
             return false;
         }
-
     }
 
     /**
@@ -113,7 +88,23 @@ public class ProyectServiceImpl implements ProyectService {
     public Proyect getProyectById(Long idProyect) {
         try {
             return this.proyectDao.findById(idProyect);
+        } catch (Exception e) {
+            return null;
+        }
 
+    }
+
+    /**
+     * Obtiene los proyectos a los que pertenece un usuario, buscado por su ID
+     *
+     * @param idUser ID del usuario participante
+     * @return Lista de objetos DTO Proyects (proyectos) en el que participa el
+     * usuario
+     */
+    @Override
+    public List<Proyect> getProyectsByUser(Long idUser) {
+        try {
+            return this.proyectDao.findProyectsByUser(idUser);
         } catch (Exception e) {
             return null;
         }
@@ -137,39 +128,103 @@ public class ProyectServiceImpl implements ProyectService {
     }
 
     /**
-     * Elimina un proyecto por su ID
+     * Obtiene los proyectos según el campo ID Owner(dueño del proyecto)
      *
-     * @param idProyect ID del proyecto a eliminar
-     * @return boolean (True)si se eliminó correctamente, (False) si no se
-     * realizó
+     * @param idOwner ID del dueño del proyecto
+     * @return Lista de objetos DTO del cual el user es Dueño
      */
-    @Override
-    public boolean deleteProyect(Long idProyect) {
+    public List<Proyect> getProyectsByIdOwner(Long idOwner) {
         try {
-            this.proyectDao.deleteById(idProyect);
-            return true;
+            return this.proyectDao.findProyectsByOwner(idOwner);
         } catch (Exception e) {
-            return false;
+            return null;
         }
     }
 
     /**
-     * Obtiene los proyectos a los que pertenece un usuario, buscado por su ID
+     * Encuentra los IDs de los usuarios que pertenecen a un proyecto
      *
-     * @param idUser ID del usuario participante
-     * @return Lista de objetos DTO Proyects (proyectos) en el que participa el
-     * usuario
+     * @param idProyect ID del proyecto a examinar
+     * @return lista de Long con los IDs de los usuarios participantes
      */
     @Override
-    public List<Proyect> getProyectsByUser(Long idUser) {
+    public List<Long> findUsersByProyect(Long idProyect) {
 
-        try {
-            return this.proyectDao.findProyectsByUser(idUser);
-
-        } catch (Exception e) {
+        // obtiene el registro de proyecto
+        Proyect proyect = this.getProyectById(idProyect);
+        // si el proyecto es nulo o no tiene usuarios retorna null
+        if (proyect == null || proyect.getUsers() == null) {
             return null;
         }
+        // se crea la lista de retorno
+        List<Long> idsUsers = new ArrayList<>();
 
+        // se añade los IDs de los participantes
+        for (ProyectUser user : proyect.getUsers()) {
+            idsUsers.add(user.get_id());
+        }
+        return idsUsers;
+
+    }
+
+    /**
+     * Guarda un proyecto en la BDD luego de revisar las validaciones necesarias
+     *
+     * @param proyect Objeto DTO proyect a ser resgistrado
+     * @return boolean (True)si se guardo correctamente, (False) si no se guardo
+     */
+    @Override
+    public boolean saveProyect(Proyect proyect) {
+
+        // primero se comprueba que no exista un proyecto con el mismo nombre, del mismo user
+        if (this.existsName(proyect)) {
+            // si existe instantaneamente no se registra e informa a la otra capa que no se ejecuto
+            return false;
+        }
+
+        // creo un user para guardar en el proyecto(dbb mongo)
+        ProyectUser proyectUser = new ProyectUser();
+
+        // se le asigna su rol de admin
+        proyectUser.set_id(proyect.getIdOwner());
+        proyectUser.setRole("ADMIN");
+
+        // se crea la lista de usuarios(de inicio vacia)
+        List<ProyectUser> users = new ArrayList<>();
+        // y se agrega al usuario a lista de users
+        users.add(proyectUser);
+        proyect.setUsers(users);
+
+        // se le asigna un codigo de invitacion 
+        proyect.setCodeInvitation(this.generateCodeInvitation());
+
+        // y finalmente se envia a la capa Dao para almacenar
+        return this.save(proyect);
+
+    }
+
+    /**
+     * actualiza un proyecto en la BDD luego de revisar las validaciones
+     * necesarias
+     *
+     * @param proyect Objeto DTO proyect a ser actualizado
+     * @return boolean (True)si se actualizó correctamente, (False) si no se
+     * actualizó
+     */
+    @Override
+    public boolean updateProyect(Proyect proyect) {
+
+        // se obtiene el proyecto original de la bdd(su nombre registrado)
+        String proyectNameDb = this.getProyectById(proyect.get_id()).getName();
+
+        // se comprueba que el nombre sea diferente para revisar que no exista otro proyecto con el mismo nombre
+        if (!proyectNameDb.equals(proyect.getName())) {
+            if (this.existsName(proyect)) {
+                return false;
+            }
+        }
+        // se registran los cambios y se retorna true
+        return this.proyectDao.update(proyect);
     }
 
     /**
@@ -182,15 +237,8 @@ public class ProyectServiceImpl implements ProyectService {
      */
     @Override
     public boolean addUser(Long idProyect, Long idUser) {
-
-        try {
-            Proyect proyect = this.getProyectById(idProyect);
-
-            return this.addUserDb(proyect, idUser);
-
-        } catch (Exception e) {
-            return false;
-        }
+        Proyect proyect = this.getProyectById(idProyect);
+        return this.addUserDb(proyect, idUser);
     }
 
     /**
@@ -203,14 +251,8 @@ public class ProyectServiceImpl implements ProyectService {
      */
     @Override
     public boolean addUser(String codeProyect, Long idUser) {
-
-        try {
-            Proyect proyect = this.getProyectByCodeInvitation(codeProyect);
-            return this.addUserDb(proyect, idUser);
-
-        } catch (Exception e) {
-            return false;
-        }
+        Proyect proyect = this.getProyectByCodeInvitation(codeProyect);
+        return this.addUserDb(proyect, idUser);
     }
 
     /**
@@ -227,17 +269,17 @@ public class ProyectServiceImpl implements ProyectService {
         // obtiene sus tareas
         List<Task> tasks = proyect.getTasks();
         // si no tiene se inicializa una nueva lista
-        if (tasks==null) {
+        if (tasks == null) {
             tasks = new ArrayList<>();
         }
         // se le asigna un ID con ayuda del método lastID()
         task.set_id(this.lastId(tasks));
         // se agrega a la lista de tareas
         tasks.add(task);
-        // es almacenado en la BDD y se retorna true
+        // es almacenado en la BDD y se retorna true 
         proyect.setTasks(tasks);
-        this.updateProyect(proyect);
-        return true;
+
+        return this.update(proyect);
     }
 
     /**
@@ -254,15 +296,15 @@ public class ProyectServiceImpl implements ProyectService {
         // obtiene sus tareas
         List<Task> tasks = proyect.getTasks();
         // si no hay tareas retorna false
-        if (tasks==null) {
+        if (tasks == null) {
             return false;
         }
         // elimina la tarea deseada
         tasks.remove(task);
         //y se almacena el cambio
         proyect.setTasks(tasks);
-        this.updateProyect(proyect);
-        return true;
+
+        return this.update(proyect);
     }
 
     /**
@@ -279,7 +321,7 @@ public class ProyectServiceImpl implements ProyectService {
         // obtiene sus tareas
         List<Task> tasks = proyect.getTasks();
         // si no hay tareas retorna false
-        if (tasks==null) {
+        if (tasks == null) {
             return false;
         }
         int index = 0;
@@ -294,42 +336,17 @@ public class ProyectServiceImpl implements ProyectService {
         // registar el cambio y almacena en la BDD
         tasks.set(index, task);
         proyect.setTasks(tasks);
-        this.updateProyect(proyect);
-        return true;
+
+        return this.update(proyect);
     }
 
     /**
-     * Encuentra los IDs de los usuarios que pertenecen a un proyecto
+     * agrega un usuario a un proyecto (usado por las 2 maneras de añadir un
+     * usuario)
      *
-     * @param idProyect ID del proyecto a examinar
-     * @return lista de Long con los IDs de los usuarios participantes
-     */
-    @Override
-    public List<Long> findUsersByProyect(Long idProyect) {
-
-        // obtiene el registro de proyecto
-        Proyect proyect = this.getProyectById(idProyect);
-        // si el proyecto es nulo o no tiene usuarios retorna null
-        if(proyect==null || proyect.getUsers()==null){
-            return null;
-        }
-        // se crea la lista de retorno
-        List<Long> idsUsers = new ArrayList<>();
-        
-        // se añade los IDs de los participantes
-        for (ProyectUser user : proyect.getUsers()) {
-            idsUsers.add(user.get_id());
-        }
-        return idsUsers;
-
-    }
-
-    /**
-     * agrega un usuario a un proyecto 
-     * (usado por las 2 maneras de añadir un usuario)
      * @param proyect
      * @param idUser
-     * @return 
+     * @return
      */
     private boolean addUserDb(Proyect proyect, Long idUser) {
         //comprueba que el usuario a ser añadido no exista
@@ -346,42 +363,45 @@ public class ProyectServiceImpl implements ProyectService {
         proyectUser.setRole("USER");
         users.add(proyectUser);
         proyect.setUsers(users);
-        this.proyectDao.update(proyect);
-        return true;
+
+        return this.update(proyect);
+
     }
 
     /**
-     * Comprueba la existencia de un proyecto por su nombre y el usuario que crea el proyecto
+     * Comprueba la existencia de un proyecto por su nombre y el usuario que
+     * crea el proyecto
+     *
      * @param proyect Objeto DTO Proyect a ser registrado
-     * @return (True) si un proyecto con el mismo nombre existe para un usuario(y es el dueño), 
-     * (False) si existe un proyecto con el mismo nombre o no(pero no es dueño)
+     * @return (True) si un proyecto con el mismo nombre existe para un
+     * usuario(y es el dueño), (False) si existe un proyecto con el mismo nombre
+     * o no(pero no es dueño)
      */
     private boolean existsName(Proyect proyect) {
-
-        try {
-            // id del creador del proyecto
-            Long idOwner = proyect.getIdOwner();
-            //proyectos al que pertenece el dueño del proyecto nuevo
-            List<Proyect> proyects = this.getProyectsByUser(idOwner);
-            // nombre del proyecto a crear
-            String proyectName = proyect.getName();
-            // se hace la busqueda de los proyectos para comprobar si existe alguno en el que es dueño y se repite el mismo nombre
-            for (Proyect proyectsName : proyects) {
-                if (proyectsName.getIdOwner().equals(idOwner) && proyectsName.getName().equals(proyectName)) {
-                    //si hay coincidencia se retorna true; 
-                    return true;
-                }
-            }
-            // si no se encuentra coincidencia se retorna false;
-            return false;
-        } catch (Exception e) {
+        // id del creador del proyecto
+        Long idOwner = proyect.getIdOwner();
+        //proyectos al que pertenece el dueño del proyecto nuevo
+        List<Proyect> proyects = this.getProyectsByIdOwner(idOwner);
+        if (proyects == null) {
             return false;
         }
+        // nombre del proyecto a crear
+        String proyectNameToCreate = proyect.getName();
 
+        // se hace la busqueda de los proyectos para comprobar si existe alguno en el que es dueño y se repite el mismo nombre
+        for (Proyect proyectsName : proyects) {
+            if (proyectsName.getName().equals(proyectNameToCreate)) {
+                //si hay coincidencia se retorna true; 
+                return true;
+            }
+        }
+        // si no se encuentra coincidencia se retorna false;
+        return false;
     }
 
     /**
      * Genera un código aleatorio para identificar el proyecto
+     *
      * @return codigo para proyecto
      */
     private String generateCodeInvitation() {
@@ -402,7 +422,9 @@ public class ProyectServiceImpl implements ProyectService {
     }
 
     /**
-     * Busca el ultimo ID de una lista de tareas y lo retorna adicionado 1 para registrar una nueva tare
+     * Busca el ultimo ID de una lista de tareas y lo retorna adicionado 1 para
+     * registrar una nueva tare
+     *
      * @param tasks Objeto DTO Task
      * @return nuevo ID para tarea
      */

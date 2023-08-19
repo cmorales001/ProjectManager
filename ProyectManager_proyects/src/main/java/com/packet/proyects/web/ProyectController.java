@@ -87,8 +87,25 @@ public class ProyectController {
             // en caso de error retorna un estado 500 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    
+    /**
+     * metodo get para obtener los proyectos de un usuario que fueron creados por el (idOwner)
+     * @param idUser ID del usuario dueño
+     * @return un objeto de tipo ResponseEntity para comunicar a cliente el estado de la peticion:
+     *         Status 200 (bien ) acompañado de una lista de proyectos en el usuario esta presente ,  
+     *         Status 500(ocurrio un problema en el servidor)
+     */
+    @GetMapping("/proyectsowner/{id}")
+    public ResponseEntity<List<Proyect>> proyectsByUserOwner(@PathVariable("id") Long idOwner) {
 
-
+        try {
+            List<Proyect> proyects = this.proyectService.findProyectsByOwner(idOwner);
+            return ResponseEntity.ok(proyects);// Devuelve un código de estado 200 (OK) con contenido una lista de proyectos.
+        } catch (Exception e) {
+            // en caso de error retorna un estado 500 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     
     /**

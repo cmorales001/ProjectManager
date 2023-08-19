@@ -55,7 +55,7 @@ public class ProyectDaoImpl implements ProyectDao {
             throw e;
         }
     }
-
+    
     /**
      * metodo DAO para obtener los proyectos pertenecientes a un user por su id
      * desde la bdd
@@ -67,6 +67,32 @@ public class ProyectDaoImpl implements ProyectDao {
     public List<Proyect> findProyectsByUser(Long idUser) {
 
         String apiUrl = apiUrlBase + "s/" + idUser; // URL de la API RESTful 
+
+        try {
+            // Hacer una solicitud GET y obtener la respuesta en una lista de proyectos
+            ResponseEntity<List<Proyect>> response = restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Proyect>>() {
+            }
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    
+    /**
+     * metodo DAO para obtener los proyectos pertenecientes a un usuario (pero que fueron creados por él )por su idOwner
+     * desde la bdd
+     * @param idOwner ID del dueño del proyecto
+     * @return lista de proyectos en el que un user es dueño
+     */
+    @Override
+    public List<Proyect> findProyectsByOwner(Long idOwner) {
+
+        String apiUrl = apiUrlBase + "sowner/" + idOwner; // URL de la API RESTful 
 
         try {
             // Hacer una solicitud GET y obtener la respuesta en una lista de proyectos

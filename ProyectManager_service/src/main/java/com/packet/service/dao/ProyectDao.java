@@ -30,4 +30,6 @@ public interface ProyectDao {
     
     //metodo DAO para obtener un proyecto por su Codigo
     public Proyect findByCodeInvitation(String code);
+    
+    public List<Proyect> findProyectsByOwner(Long idOwner);
 }

@@ -85,6 +85,16 @@ public class ProyectServiceImpl implements ProyectService {
     public void deleteById(Long id) {
         this.proyectDao.deleteById(id);
     }
+    /**
+     * devuelve los proyecto de un usuario el cual es el dueño(creador)
+     * @param idOwner ID del usuario creador
+     * @return Una lista de proyectos relacionados con el usuario dueño.
+     */
+    @Override
+    public List<Proyect> findProyectsByOwner(Long idOwner){
+        return this.proyectDao.findProyectsByIdOwner(idOwner);
+        
+    }
     
     /**
      * busca el id con el número mas alto de los registros en la BDD
