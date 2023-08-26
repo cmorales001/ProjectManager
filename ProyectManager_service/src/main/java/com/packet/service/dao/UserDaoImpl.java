@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 public class UserDaoImpl implements UserDao {
 
     // url para realizar peticiones a la dbb mysql 
-    private final String apiUrlBase = "http://localhost:8081/api/v1/user";
+    private final String apiUrlBase = "http://pm-users-crud:8081/api/v1/user";
 
      // objeto web RESTful para interactuar con la API REST CRUD
     @Autowired

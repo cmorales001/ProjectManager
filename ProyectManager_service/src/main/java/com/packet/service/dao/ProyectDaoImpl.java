@@ -28,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
 public class ProyectDaoImpl implements ProyectDao {
 
     // url para realizar peticiones a la dbb mysql 
-    private final String apiUrlBase = "http://localhost:8082/api/v1/proyect";
+    private final String apiUrlBase = "http://pm-proyects-crud:8082/api/v1/proyect";
 
     // objeto web RESTful para interactuar con la API REST CRUD
     @Autowired
