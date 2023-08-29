@@ -1,0 +1,26 @@
+events {
+    worker_connections 1024;  # Ajusta este número según tus necesidades
+}
+
+http {
+    upstream backend {
+	server pm-service-1:8083 fail_timeout=3s max_fails=2;
+	server pm-service-1:8083 fail_timeout=3s max_fails=2;
+	server pm-service-1:8083 fail_timeout=3s max_fails=2;  
+    }
+
+    server {
+        listen 80;
+
+        location /api/v2 {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        # Otras configuraciones para el frontend si es necesario
+    }
+}
+
+
